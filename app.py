@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
-
-
 import streamlit as st
 import pandas as pd
 import re
@@ -38,8 +35,8 @@ def get_country_name(code):
 # 3. Sidebar UI for Inputs
 with st.sidebar:
     st.header("Upload Data")
-    rw_file = st.file_uploader("1. Retraction Watch CSV", type=['csv'])
-    excel_file = st.file_uploader("2. Authors Dataset (Excel)", type=['xlsx'])
+    rw_file = st.file_uploader("1. Retraction Watch Data", type=['csv'])
+    excel_file = st.file_uploader("2. Top-2% Data (Excel)", type=['xlsx'])
     
     st.header("Settings")
     min_retractions = st.slider("Minimum Matched Authors", min_value=1, max_value=20, value=5)
@@ -56,7 +53,7 @@ if rw_file and excel_file:
         unique_codes = df_excel['cntry'].unique()
         results = []
         
-        # Process logic (exact same as your script)
+        # Process logic
         for short_code in unique_codes:
             full_name = get_country_name(short_code)
             if not full_name: continue
@@ -80,14 +77,18 @@ if rw_file and excel_file:
             
             if total_common < min_retractions: continue
                 
+            # Calculate percentages and round to 2 decimal places
+            author_pct = round((total_common / total_top2) * 100, 2) if total_top2 > 0 else 0.0
+            retract_pct = round((total_country_retractions / total_global_retractions) * 100, 2) if total_global_retractions > 0 else 0.0
+                
             results.append({
                 'Country': full_name,
                 'Code': short_code.upper(),
                 'Top2_Authors': total_top2,
                 'Total_Country_Retractions': total_country_retractions,
                 'Overlap_Authors': total_common,
-                'Author_Percentage': (total_common / total_top2) * 100 if total_top2 > 0 else 0,
-                'Retraction_Percentage': (total_country_retractions / total_global_retractions) * 100 if total_global_retractions > 0 else 0
+                'Author_Percentage': author_pct,
+                'Retraction_Percentage': retract_pct
             })
 
         df_results = pd.DataFrame(results)
@@ -118,13 +119,17 @@ if rw_file and excel_file:
             ax1.set_title(f'Top {top_n} by % of Top-2% Authors in Retraction List', fontsize=12, fontweight='bold')
             ax1.set_xlabel('Percentage (%)', fontsize=11, fontweight='bold')
             ax1.grid(axis='x', linestyle='--', alpha=0.7)
-            for bar in bars1: ax1.text(bar.get_width() + (ax1.get_xlim()[1]*0.01), bar.get_y() + bar.get_height()/2, f"{bar.get_width():.1f}%", va='center')
+            
+            # Update bar labels to 2 decimal places
+            for bar in bars1: ax1.text(bar.get_width() + (ax1.get_xlim()[1]*0.01), bar.get_y() + bar.get_height()/2, f"{bar.get_width():.2f}%", va='center')
 
             bars2 = ax2.barh(df_plot_retractions['Country'], df_plot_retractions['Retraction_Percentage'], color='indianred', edgecolor='black')
             ax2.set_title(f'Top {top_n} by % Share of Global Retractions', fontsize=12, fontweight='bold')
             ax2.set_xlabel('Percentage (%)', fontsize=11, fontweight='bold')
             ax2.grid(axis='x', linestyle='--', alpha=0.7)
-            for bar in bars2: ax2.text(bar.get_width() + (ax2.get_xlim()[1]*0.01), bar.get_y() + bar.get_height()/2, f"{bar.get_width():.1f}%", va='center')
+            
+            # Update bar labels to 2 decimal places
+            for bar in bars2: ax2.text(bar.get_width() + (ax2.get_xlim()[1]*0.01), bar.get_y() + bar.get_height()/2, f"{bar.get_width():.2f}%", va='center')
 
             ax1.set_xlim(0, df_plot_authors['Author_Percentage'].max() * 1.15)
             ax2.set_xlim(0, df_plot_retractions['Retraction_Percentage'].max() * 1.15)
@@ -134,10 +139,3 @@ if rw_file and excel_file:
             st.pyplot(fig)
 else:
     st.info("Please upload both data files in the sidebar to begin the analysis.")
-
-
-# In[ ]:
-
-
-
-
