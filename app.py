@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 # 1. Set up the Web Page
 st.set_page_config(page_title="Retraction Analysis", layout="wide")
 st.title("🌍 Country-wise Top-2% Authors Retraction Overlap Analysis")
-st.markdown("Upload the Retraction Watch dataset and the Top-2% Authors dataset to generate independent rankings.")
+st.markdown("Upload the Retraction Watch Data and the Top-2% Authors Data ")
 
 # 2. Helper Functions (Same as your script)
 def normalize_name(name_str):
