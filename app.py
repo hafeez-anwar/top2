@@ -36,7 +36,7 @@ def get_country_name(code):
 with st.sidebar:
     st.header("Upload Data")
     rw_file = st.file_uploader("1. Retraction Watch Data", type=['csv'])
-    excel_file = st.file_uploader("2. Top-2% Data (Excel)", type=['xlsx'])
+    excel_file = st.file_uploader("2. Top-2% Data", type=['xlsx'])
     
     st.header("Settings")
     min_retractions = st.slider("Minimum Matched Authors", min_value=1, max_value=20, value=5)
